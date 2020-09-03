@@ -503,6 +503,7 @@ TriggerHandler.CALLBACK.SEPERATE_FILLTYPE_NOT_ALLOWED = 2
 TriggerHandler.CALLBACK.MIN_NOT_REACHED = 3
 TriggerHandler.CALLBACK.OK = 4
 TriggerHandler.CALLBACK.SKIP_LOADING = 5
+TriggerHandler.CALLBACK.DONE_LOADING = 6
 function TriggerHandler:triggerCanStartLoading(trigger,object,fillUnitIndex,triggerFillLevel,data, dataLength)
 	--is fillLevel < maxFillLevel
 	local callback = nil
@@ -521,8 +522,13 @@ function TriggerHandler:triggerCanStartLoading(trigger,object,fillUnitIndex,trig
 				elseif data.minFillLevel == 0 then 
 					callback = self.CALLBACK.SKIP_LOADING
 					self:debugSparse(object,"skip loading, minFillLevel = 0, %s",tostring(g_fillTypeManager:getFillTypeByIndex(fillType).title))
-				else
-					callback = self.CALLBACK.MIN_NOT_REACHED
+				else 
+					--if trigger can't activate and min fillLevel reached then drive 
+					if object:getFillUnitFillLevelPercentage(fillUnitIndex) >= data.minFillLevel then 
+						callback = self.CALLBACK.DONE_LOADING
+					else 
+						callback = self.CALLBACK.MIN_NOT_REACHED
+					end
 				end
 			else
 				callback = self.CALLBACK.SEPERATE_FILLTYPE_NOT_ALLOWED
@@ -750,6 +756,12 @@ function TriggerHandler:handleLoadingCallbackLoadTrigger(trigger,object,fillUnit
 			CpManager:setGlobalInfoText(self.vehicle, 'FARM_SILO_IS_EMPTY');
 			self:debugSparse(object, 'LoadingTrigger: minLevel not reached, fillType: '..g_fillTypeManager:getFillTypeByIndex(fillType).title)
 			return 
+		--min is reached so continue..
+		elseif callbackData.callback == TriggerHandler.CALLBACK.DONE_LOADING then
+			lastCallbackData = nil
+			self:resetLoadingState()		
+			self:debugSparse(object, 'LoadingTrigger: continue!! : '..g_fillTypeManager:getFillTypeByIndex(fillType).title)
+			return
 		end
 	end
 	--minLevel from last checked fillType not reached!
@@ -908,6 +920,12 @@ function TriggerHandler:handleLoadingCallbackFillTrigger(trigger,object,fillUnit
 			else 
 				self:debugSparse(object, 'LoadingTrigger: minLevel not reached and skip loading, fillType: '..g_fillTypeManager:getFillTypeByIndex(fillType).title)
 			end
+		--min is reached so continue..
+		elseif callbackData.callback == TriggerHandler.CALLBACK.DONE_LOADING then
+			lastCallbackData = nil
+			self:resetLoadingState()		
+			self:debugSparse(object, 'LoadingTrigger: continue!! : '..g_fillTypeManager:getFillTypeByIndex(fillType).title)
+			return
 		end
 	end
 	--minLevel from last checked fillType not reached!
