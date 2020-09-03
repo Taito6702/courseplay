@@ -194,7 +194,11 @@ end
 function AIDriver:writeUpdateStream(streamId, connection, dirtyMask)
 	self.triggerHandler:writeUpdateStream(streamId)
 	streamWriteString(streamId,self.state.name)
-	streamWriteBool(streamId,self.active)
+	if self.active then 
+		streamWriteBool(streamId,true)
+	else 
+		streamWriteBool(streamId,false)
+	end
 --	streamWriteBool(streamId,self.vehicle.cp.isDriving)
 end 
 
