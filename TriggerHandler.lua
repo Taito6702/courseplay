@@ -523,8 +523,10 @@ function TriggerHandler:triggerCanStartLoading(trigger,object,fillUnitIndex,trig
 					callback = self.CALLBACK.SKIP_LOADING
 					self:debugSparse(object,"skip loading, minFillLevel = 0, %s",tostring(g_fillTypeManager:getFillTypeByIndex(fillType).title))
 				else 
+					local fillLevelPercentage = object:getFillUnitFillLevelPercentage(fillUnitIndex)*100
 					--if trigger can't activate and min fillLevel reached then drive 
-					if object:getFillUnitFillLevelPercentage(fillUnitIndex) >= data.minFillLevel then 
+					self:debugSparse(object,"trigger can't start, objectFillLevelPercentage: %s, minFillLevel: %s,  %s",tostring(fillLevelPercentage),tostring(data.minFillLevel),tostring(g_fillTypeManager:getFillTypeByIndex(fillType).title))
+					if fillLevelPercentage >= data.minFillLevel then 
 						callback = self.CALLBACK.DONE_LOADING
 					else 
 						callback = self.CALLBACK.MIN_NOT_REACHED
