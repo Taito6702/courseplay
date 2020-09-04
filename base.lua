@@ -1332,7 +1332,7 @@ function courseplay:onWriteStream(streamId, connection)
 	courseplay:debug("id: "..tostring(NetworkUtil.getObjectId(self)).."  base: write stream end", 5)
 end
 
---TODO figure out if we can sync the globalText table somehow here ??
+--TODO figure out how dirtyFlags work ??
 
 function courseplay:onReadUpdateStream(streamId, timestamp, connection)
 	 if connection:getIsServer() then
@@ -1341,7 +1341,7 @@ function courseplay:onReadUpdateStream(streamId, timestamp, connection)
 		end 
 --		if streamReadBool(streamId) then
 			if streamReadBool(streamId) then 
-				self.cp.waypointIndex = streamWriteRead32(streamId)
+				self.cp.waypointIndex = streamReadInt32(streamId)
 			else 
 				self.cp.waypointIndex = nil
 			end
@@ -1350,7 +1350,7 @@ function courseplay:onReadUpdateStream(streamId, timestamp, connection)
 			else 
 				self.cp.infoText = nil
 			end
-			if streamDebugReadBool(streamId) then 
+			if streamReadBool(streamId) then 
 				self.cp.currentCourseName = streamReadString(streamId)
 			else 
 				self.cp.currentCourseName = nil
