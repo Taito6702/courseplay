@@ -816,6 +816,7 @@ LoadTrigger.setIsLoading = Utils.overwrittenFunction(LoadTrigger.setIsLoading,Tr
 function TriggerHandler:endTipping(superFunc,noEventSend)
 	local rootVehicle = self:getRootVehicle()
 	if g_server ~=nil and courseplay:isAIDriverActive(rootVehicle) then
+		rootVehicle.cp.driver.triggerHandler:debug(self,"finished unloading, endTipping !! ")
 		if rootVehicle.cp.settings.automaticCoverHandling:is(true) and self.spec_cover then
 			self:setCoverState(0, true)
 		end
@@ -1147,7 +1148,11 @@ function TriggerHandler:setDischargeState(superFunc,state, noEventSend)
 		local triggerHandler = rootVehicle.cp.driver.triggerHandler
 		if state ~= spec.currentDischargeState then 
 			if state == Dischargeable.DISCHARGE_STATE_OFF then
-				if not self.spec_trailer or not self.spec_trailer.tipSideCount or not (self.spec_trailer.tipSideCount>0) then
+				triggerHandler:debug(self,"finished unloading, setDischargeState off!! ")
+				if self.spec_trailer and self.spec_trailer.tipSideCount then 
+					triggerHandler:debug(self,"tipsides detected: %s, setDischargeState off!! ",self.spec_trailer.tipSideCount)
+				end
+				if not self.spec_trailer or not self.spec_trailer.tipSideCount or self.spec_trailer.tipSideCount <=0 then
 					triggerHandler:resetUnloadingState()
 				end
 			end			
