@@ -49,7 +49,10 @@ function CourseEvent:run(connection) -- wir fuehren das empfangene event aus
 	if self.vehicle then 
 		courseplay:setVehicleWaypoints(self.vehicle, self.course)
 	end
-	
+	if not connection:getIsServer() then
+		courseplay.debugVehicle(5,self.vehicle,"broadcast course event feedback")
+		g_server:broadcastEvent(CourseEvent:new(self.vehicle,self.course), nil, connection, self.vehicle);
+	end;
 end
 
 function CourseEvent.sendEvent(vehicle,course)
